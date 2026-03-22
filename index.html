@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refund Rover — Get Your Money Back</title>
+<meta name="theme-color" content="#00d4b4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Refund Rover">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a0e1a'/><text y='.9em' font-size='72' x='14'>💸</text></svg>">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Refund%20Rover%22%2C%22short_name%22%3A%22RefundRover%22%2C%22description%22%3A%22Get%20your%20money%20back%20in%20minutes%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0e1a%22%2C%22theme_color%22%3A%22%2300d4b4%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%3Crect%20width%3D'100'%20height%3D'100'%20rx%3D'22'%20fill%3D'%230a0e1a'%2F%3E%3Ctext%20y%3D'.9em'%20font-size%3D'72'%20x%3D'14'%3E%F0%9F%92%B8%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- jsPDF for PDF download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- EmailJS for client-side email sending -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --border: rgba(255,255,255,0.08);
+  --text: #f0f4ff;
+  --muted: #8090a8;
+  --accent: #00d4b4;
+  --accent2: #0ea5e9;
+  --danger: #f87171;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+[data-theme="light"] {
+  --bg: #f5f7ff;
+  --surface: #ffffff;
+  --surface2: #eef1fb;
+  --border: rgba(0,0,0,0.08);
+  --text: #0a0e1a;
+  --muted: #5a6a82;
+  --shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 20% 0%, rgba(0,212,180,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 80% 100%, rgba(14,165,233,0.05) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+.wrap { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 0 16px 80px; }
+
+/* HEADER */
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0 12px;
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(16px);
+  background: rgba(10,14,26,0.7);
+  margin: 0 -16px; padding-left: 16px; padding-right: 16px;
+}
+[data-theme="light"] header { background: rgba(245,247,255,0.85); }
+.logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; letter-spacing: -0.02em; color: var(--text); }
+.logo span { color: var(--accent); }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.theme-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 50px; padding: 6px 14px; cursor: pointer;
+  color: var(--muted); font-size: 0.8rem; font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.theme-btn:hover { color: var(--text); border-color: var(--accent); }
+.pwa-badge {
+  display: none; align-items: center; gap: 4px;
+  background: rgba(0,212,180,0.1); border: 1px solid rgba(0,212,180,0.25);
+  border-radius: 50px; padding: 4px 10px; font-size: 0.7rem; color: var(--accent);
+}
+.pwa-badge.visible { display: flex; }
+
+/* PROGRESS */
+.progress-wrap { margin: 24px 0 0; }
+.progress-labels { display: flex; gap: 0; margin-bottom: 10px; }
+.progress-label {
+  flex: 1; text-align: center; font-size: 0.72rem; font-weight: 500;
+  color: var(--muted); transition: color 0.3s; position: relative;
+}
+.progress-label.active { color: var(--accent); }
+.progress-label.done { color: var(--success); }
+.progress-track { height: 4px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 4px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* SECTIONS */
+.section { display: none; animation: fadeUp 0.35s ease both; }
+.section.active { display: block; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(18px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* HERO */
+.hero { text-align: center; padding: 36px 0 32px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(0,212,180,0.1); border: 1px solid rgba(0,212,180,0.25);
+  border-radius: 50px; padding: 5px 14px; font-size: 0.78rem;
+  color: var(--accent); margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  font-weight: 800; line-height: 1.12; letter-spacing: -0.03em; margin-bottom: 14px;
+}
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p { color: var(--muted); font-size: 1rem; max-width: 440px; margin: 0 auto 28px; line-height: 1.6; }
+.stats-row { display: flex; justify-content: center; gap: 32px; margin-bottom: 32px; }
+.stat { text-align: center; }
+.stat-num { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--text); }
+.stat-lbl { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+/* CLAIMS HISTORY */
+.claims-section { margin-bottom: 32px; }
+.claims-section h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 14px; }
+.claim-history-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap;
+}
+.claim-history-info { flex: 1; min-width: 0; }
+.claim-history-id { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--text); }
+.claim-history-meta { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+.claim-history-status {
+  font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 50px;
+  background: rgba(0,212,180,0.1); color: var(--accent);
+}
+.claim-history-actions { display: flex; gap: 8px; }
+
+/* ISSUE CARDS */
+.issue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+@media(max-width:480px) { .issue-grid { grid-template-columns: 1fr; } }
+.issue-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 18px 16px;
+  cursor: pointer; transition: all 0.22s; text-align: left;
+  position: relative; overflow: hidden;
+}
+.issue-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(0,212,180,0.05) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.22s;
+}
+.issue-card:hover { border-color: rgba(0,212,180,0.4); transform: translateY(-2px); box-shadow: var(--shadow); }
+.issue-card:hover::before { opacity: 1; }
+.issue-card.selected { border-color: var(--accent); background: rgba(0,212,180,0.05); }
+.issue-card.selected::before { opacity: 1; }
+.issue-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+.issue-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.92rem; margin-bottom: 5px; }
+.issue-tip { font-size: 0.75rem; color: var(--muted); line-height: 1.45; }
+
+/* FORM FIELDS */
+.field-group { margin-bottom: 20px; }
+.field-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.82rem; font-weight: 500; color: var(--muted);
+  margin-bottom: 7px; letter-spacing: 0.01em;
+}
+.field-label .optional { font-size: 0.7rem; background: var(--surface2); padding: 1px 7px; border-radius: 10px; color: var(--muted); }
+.field-label .tip-icon { cursor: pointer; color: var(--accent2); font-size: 0.8rem; position: relative; }
+.field-label .tip-icon:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: 22px; left: -60px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  font-size: 0.72rem; color: var(--text); width: 200px;
+  z-index: 50; box-shadow: var(--shadow); pointer-events: none;
+  white-space: normal; line-height: 1.5;
+}
+input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"], select, textarea {
+  width: 100%; background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 13px 14px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem; transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none; appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,212,180,0.12);
+}
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238090a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+}
+textarea { resize: vertical; min-height: 90px; }
+.field-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:400px) { .field-inline { grid-template-columns: 1fr; } }
+
+/* File upload */
+.upload-zone {
+  border: 2px dashed var(--border); border-radius: var(--radius);
+  padding: 28px 20px; text-align: center; cursor: pointer;
+  transition: all 0.22s; background: var(--surface); position: relative;
+}
+.upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: rgba(0,212,180,0.04); }
+.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-icon { font-size: 2rem; margin-bottom: 8px; }
+.upload-text { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+.upload-text strong { color: var(--accent); }
+.files-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.file-item {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border-radius: var(--radius-sm);
+  padding: 8px 12px; font-size: 0.8rem;
+}
+.file-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.file-thumb-placeholder { width: 40px; height: 40px; background: var(--surface); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.file-item-name { color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-remove { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; padding: 0 0 0 8px; flex-shrink: 0; }
+
+/* Checkbox */
+.checkbox-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px;
+}
+.checkbox-row input[type="checkbox"] { margin-top: 2px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+.checkbox-row label { font-size: 0.84rem; color: var(--muted); line-height: 1.5; cursor: pointer; }
+.checkbox-row label a { color: var(--accent); text-decoration: none; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 28px; border-radius: var(--radius); border: none;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
+  cursor: pointer; transition: all 0.22s; text-decoration: none; letter-spacing: 0.01em;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #000; box-shadow: 0 4px 24px rgba(0,212,180,0.25);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,212,180,0.4); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-secondary { background: var(--surface2); border: 1.5px solid var(--border); color: var(--text); }
+.btn-secondary:hover { border-color: rgba(255,255,255,0.2); }
+.btn-ghost { background: transparent; color: var(--muted); }
+.btn-ghost:hover { color: var(--text); }
+.btn-full { width: 100%; }
+.btn-row { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+.btn-row .btn-ghost { padding-left: 0; }
+.btn-sm { padding: 9px 18px; font-size: 0.82rem; }
+.btn-outline { background: transparent; border: 1.5px solid var(--accent); color: var(--accent); }
+.btn-outline:hover { background: rgba(0,212,180,0.08); }
+.btn-danger { background: transparent; border: 1.5px solid var(--danger); color: var(--danger); }
+.btn-danger:hover { background: rgba(248,113,113,0.08); }
+
+/* Section header */
+.section-header { margin-bottom: 28px; }
+.section-header h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; margin-bottom: 6px; }
+.section-header p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+
+/* SUCCESS / STEP 4 */
+.success-header { text-align: center; padding: 28px 0 24px; }
+.success-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25);
+  border-radius: 50px; padding: 7px 18px; font-size: 0.85rem;
+  color: var(--success); margin-bottom: 16px; font-weight: 500;
+}
+.claim-id { font-family: 'Syne', sans-serif; font-size: 0.8rem; color: var(--muted); margin-top: 8px; letter-spacing: 0.05em; }
+.template-box {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 20px;
+}
+.template-box-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+}
+.template-box-header h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; }
+.template-copy-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.template-content {
+  font-size: 0.82rem; color: var(--text); line-height: 1.7;
+  white-space: pre-wrap; font-family: 'DM Sans', monospace;
+  border-top: 1px solid var(--border); padding-top: 14px; overflow-x: auto;
+}
+.next-steps { background: var(--surface); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+.next-steps h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 14px; }
+.step-item { display: flex; gap: 12px; margin-bottom: 12px; }
+.step-num {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(0,212,180,0.15); border: 1px solid rgba(0,212,180,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; color: var(--accent); margin-top: 2px;
+}
+.step-text { font-size: 0.84rem; color: var(--muted); line-height: 1.5; }
+.step-text strong { color: var(--text); display: block; margin-bottom: 2px; font-weight: 500; }
+
+/* Share link */
+.share-link-box {
+  background: var(--surface2); border-radius: var(--radius-sm);
+  padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px; cursor: pointer; transition: border 0.2s;
+  border: 1px solid var(--border);
+}
+.share-link-box:hover { border-color: var(--accent); }
+.share-link-text { font-size: 0.78rem; color: var(--muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.share-link-copy { font-size: 0.72rem; color: var(--accent); flex-shrink: 0; font-weight: 600; }
+
+/* PWA install button */
+.pwa-install-btn {
+  width: 100%; display: none;
+  margin-top: 16px;
+}
+.pwa-install-btn.visible { display: flex; }
+
+/* Tracker */
+.tracker-bar {
+  display: flex; gap: 0; margin: 16px 0;
+  background: var(--surface2); border-radius: 50px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.tracker-step {
+  flex: 1; text-align: center; padding: 10px 6px;
+  font-size: 0.72rem; font-weight: 500; color: var(--muted); transition: all 0.3s;
+}
+.tracker-step.done { background: rgba(52,211,153,0.15); color: var(--success); }
+.tracker-step.active { background: rgba(0,212,180,0.1); color: var(--accent); }
+
+/* Alert */
+.alert {
+  border-radius: var(--radius-sm); padding: 12px 16px;
+  font-size: 0.82rem; margin-bottom: 16px; line-height: 1.5;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.alert-info { background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.2); color: var(--accent2); }
+.alert-error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); color: var(--danger); }
+.alert-success { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2); color: var(--success); }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  z-index: 200; align-items: center; justify-content: center; padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 28px; max-width: 480px; width: 100%;
+  max-height: 80vh; overflow-y: auto;
+  border: 1px solid var(--border); animation: fadeUp 0.25s ease both;
+}
+.modal h2 { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 14px; }
+.modal p, .modal li { font-size: 0.87rem; color: var(--muted); line-height: 1.7; margin-bottom: 8px; }
+.modal-close { float: right; background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; margin-top: -4px; }
+
+/* FAQ / FOOTER */
+footer { border-top: 1px solid var(--border); padding: 40px 0 20px; margin-top: 60px; }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
+.footer-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; }
+.footer-links a:hover { color: var(--accent); }
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-q {
+  width: 100%; background: none; border: none; text-align: left;
+  padding: 16px 0; cursor: pointer; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.faq-q .faq-icon { color: var(--muted); transition: transform 0.2s; }
+.faq-item.open .faq-icon { transform: rotate(180deg); }
+.faq-a { display: none; padding: 0 0 16px; font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+.faq-item.open .faq-a { display: block; }
+.footer-note { font-size: 0.75rem; color: var(--muted); }
+
+/* Error states */
+.error-msg { font-size: 0.76rem; color: var(--danger); margin-top: 5px; display: none; }
+.field-group.has-error input,
+.field-group.has-error select,
+.field-group.has-error textarea { border-color: var(--danger); }
+.field-group.has-error .error-msg { display: block; }
+
+/* Security note */
+.security-note {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.75rem; color: var(--muted); margin-top: 12px;
+  padding: 10px 14px; background: var(--surface2); border-radius: var(--radius-sm);
+}
+
+/* Toast */
+.copied-toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--success); color: #000;
+  padding: 10px 22px; border-radius: 50px; font-size: 0.85rem; font-weight: 600;
+  z-index: 300; animation: toastIn 0.3s ease both; pointer-events: none;
+}
+.copied-toast.error-toast { background: var(--danger); color: #fff; }
+@keyframes toastIn {
+  from { opacity:0; transform: translate(-50%, 10px); }
+  to { opacity:1; transform: translate(-50%, 0); }
+}
+
+/* Spinner */
+.spinner {
+  width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #000; border-radius: 50%;
+  animation: spin 0.6s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- DATALISTS for autocomplete -->
+<datalist id="dl-bank">
+  <option value="Chase"><option value="Bank of America"><option value="Wells Fargo">
+  <option value="Citibank"><option value="Capital One"><option value="US Bank">
+  <option value="TD Bank"><option value="PNC Bank"><option value="Ally Bank">
+  <option value="American Express">
+</datalist>
+<datalist id="dl-airline">
+  <option value="Delta"><option value="United Airlines"><option value="American Airlines">
+  <option value="Southwest Airlines"><option value="JetBlue"><option value="Alaska Airlines">
+  <option value="Spirit Airlines"><option value="Frontier Airlines"><option value="Air France">
+  <option value="British Airways">
+</datalist>
+<datalist id="dl-sub">
+  <option value="Netflix"><option value="Adobe Creative Cloud"><option value="Spotify">
+  <option value="Apple One"><option value="Amazon Prime"><option value="Hulu">
+  <option value="Disney+"><option value="LinkedIn Premium"><option value="Gym Membership">
+  <option value="Microsoft 365">
+</datalist>
+<datalist id="dl-shop">
+  <option value="Amazon"><option value="eBay"><option value="Etsy">
+  <option value="Walmart"><option value="Target"><option value="Shein">
+  <option value="ASOS"><option value="Wayfair"><option value="Chewy">
+  <option value="Best Buy">
+</datalist>
+<datalist id="dl-ride">
+  <option value="Uber"><option value="Lyft"><option value="DoorDash">
+  <option value="Instacart"><option value="Grubhub"><option value="Uber Eats">
+  <option value="Postmates"><option value="Amazon Flex"><option value="Gopuff">
+  <option value="Shipt">
+</datalist>
+
+<div class="wrap">
+  <header>
+    <div class="logo">Refund<span>Rover</span></div>
+    <div class="header-actions">
+      <div class="pwa-badge" id="pwaBadge">📲 Installed</div>
+      <button class="theme-btn" onclick="toggleTheme()">☀ Light</button>
+    </div>
+  </header>
+
+  <!-- Progress (hidden on step 0) -->
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-labels">
+      <div class="progress-label" id="pl1">Issue</div>
+      <div class="progress-label" id="pl2">Details</div>
+      <div class="progress-label" id="pl3">Contact</div>
+      <div class="progress-label" id="pl4">Done</div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:25%"></div>
+    </div>
+  </div>
+
+  <!-- ====== STEP 0: HOME ====== -->
+  <div class="section active" id="step0">
+
+    <!-- Claims history dashboard -->
+    <div id="claimsHistorySection"></div>
+
+    <div class="hero">
+      <div class="hero-badge">✦ Free &amp; No Account Needed</div>
+      <h1>Get your money back<br><em>in minutes.</em></h1>
+      <p>We'll help you write the perfect refund request, dispute, or chargeback — powered by real consumer rights rules.</p>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-num">$2.1M</div><div class="stat-lbl">recovered last month</div></div>
+        <div class="stat"><div class="stat-num">47,000+</div><div class="stat-lbl">claims started</div></div>
+        <div class="stat"><div class="stat-num">83%</div><div class="stat-lbl">success rate</div></div>
+      </div>
+      <button class="btn btn-primary" style="font-size:1.1rem;padding:16px 40px" onclick="startNewClaim()">
+        Start a claim →
+      </button>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:12px">Takes under 2 minutes. We never store your documents on servers.</p>
+    </div>
+
+    <footer>
+      <div class="footer-links">
+        <a href="#" onclick="openModal('aboutModal');return false">About</a>
+        <a href="#" onclick="openModal('privacyModal');return false">Privacy</a>
+        <a href="mailto:hello@refundrover.app">Contact</a>
+      </div>
+      <div style="margin-bottom:20px">
+        <strong style="font-family:'Syne',sans-serif;font-size:0.9rem">Frequently Asked Questions</strong>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Is this really free? <span class="faq-icon">▾</span></button>
+        <div class="faq-a">Yes — Refund Rover is completely free. We generate your letter client-side. No hidden fees, no subscriptions.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Do you store my information? <span class="faq-icon">▾</span></button>
+        <div class="faq-a">Your files are stored only in your browser's localStorage for claim history. Nothing leaves your device to our servers.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What if my issue isn't listed? <span class="faq-icon">▾</span></button>
+        <div class="faq-a">Choose "Other" and describe your situation. We'll generate a professional template based on your description.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Will this actually work? <span class="faq-icon">▾</span></button>
+        <div class="faq-a">A politely firm, well-worded request dramatically increases your chances. We cite real consumer protection rules so companies take you seriously.</div>
+      </div>
+      <div class="footer-note" style="margin-top:28px">© 2025 Refund Rover · Not legal advice · Results vary</div>
+    </footer>
+  </div>
+
+  <!-- ====== STEP 1: ISSUE SELECTION ====== -->
+  <div class="section" id="step1">
+    <div class="section-header" style="margin-top:28px">
+      <h2>What happened?</h2>
+      <p>Pick the category that best fits your situation.</p>
+    </div>
+    <div class="issue-grid">
+      <div class="issue-card" onclick="selectIssue('bank', this)">
+        <span class="issue-icon">🏦</span>
+        <div class="issue-title">Bank or credit card fee</div>
+        <div class="issue-tip">Overdraft, ATM, monthly service, or foreign transaction fees. Many banks waive on first request.</div>
+      </div>
+      <div class="issue-card" onclick="selectIssue('flight', this)">
+        <span class="issue-icon">✈️</span>
+        <div class="issue-title">Flight delay or cancellation</div>
+        <div class="issue-tip">US DOT rules may entitle you to $400–$1,350+ for delays over 3 hours.</div>
+      </div>
+      <div class="issue-card" onclick="selectIssue('subscription', this)">
+        <span class="issue-icon">🔄</span>
+        <div class="issue-title">Unwanted subscription charge</div>
+        <div class="issue-tip">Charged after cancelling, free trial auto-renewed, or can't cancel easily.</div>
+      </div>
+      <div class="issue-card" onclick="selectIssue('shopping', this)">
+        <span class="issue-icon">📦</span>
+        <div class="issue-title">Online shopping / delivery</div>
+        <div class="issue-tip">Item never arrived, wrong item sent, significantly damaged, or very late.</div>
+      </div>
+      <div class="issue-card" onclick="selectIssue('rideshare', this)">
+        <span class="issue-icon">🚗</span>
+        <div class="issue-title">Rideshare / delivery overcharge</div>
+        <div class="issue-tip">Overcharge, poor service, surge pricing dispute, or delivery never arrived.</div>
+      </div>
+      <div class="issue-card" onclick="selectIssue('other', this)">
+        <span class="issue-icon">✏️</span>
+        <div class="issue-title">Other issue</div>
+        <div class="issue-tip">Describe your own situation and we'll craft a professional request.</div>
+      </div>
+    </div>
+    <div id="otherField" style="display:none;margin-bottom:20px">
+      <div class="field-group">
+        <div class="field-label">Describe your issue</div>
+        <textarea id="otherDesc" placeholder="e.g., Hotel charged no-show fee despite cancelling in time..."></textarea>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="step1Btn" onclick="step1Next()">Continue →</button>
+      <button class="btn btn-ghost" onclick="goStep(0)">← Back</button>
+    </div>
+    <div id="step1Error" class="alert alert-error" style="display:none;margin-top:14px">⚠ Please select a category to continue.</div>
+  </div>
+
+  <!-- ====== STEP 2: DETAILS ====== -->
+  <div class="section" id="step2">
+    <div class="section-header" style="margin-top:28px">
+      <h2>Tell us a bit more</h2>
+      <p>Only the essentials. <em style="color:var(--muted)">Optional fields are marked.</em></p>
+    </div>
+
+    <!-- BANK -->
+    <div id="fields-bank" class="issue-fields" style="display:none">
+      <div class="field-group" id="fg-bankName">
+        <div class="field-label">Bank or card issuer name <span class="tip-icon" data-tip="The exact company name personalizes your letter and finds the right contact.">?</span></div>
+        <input type="text" id="bankName" placeholder="e.g., Chase, Bank of America" list="dl-bank" oninput="autoSuggestEmail('bankName','bank')">
+        <div class="error-msg">Please enter your bank name.</div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Type of fee</div>
+        <select id="feeType">
+          <option value="">Select fee type…</option>
+          <option>Overdraft fee</option>
+          <option>Monthly service / maintenance fee</option>
+          <option>ATM out-of-network fee</option>
+          <option>Foreign transaction fee</option>
+          <option>Late payment fee</option>
+          <option>Other bank fee</option>
+        </select>
+      </div>
+      <div class="field-inline">
+        <div class="field-group">
+          <div class="field-label">Approximate date</div>
+          <input type="date" id="feeDate">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Amount charged ($)</div>
+          <input type="number" id="feeAmount" placeholder="35">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Waived a fee before? <span class="optional">optional</span></div>
+        <select id="feeWaivedBefore">
+          <option value="">Not sure</option>
+          <option value="yes">Yes</option>
+          <option value="no">No / First time asking</option>
+        </select>
+      </div>
+      <div class="alert alert-info">💡 <strong>Tip:</strong> Best proof: bank statement showing the fee + account activity screenshot.</div>
+    </div>
+
+    <!-- FLIGHT -->
+    <div id="fields-flight" class="issue-fields" style="display:none">
+      <div class="field-group" id="fg-airline">
+        <div class="field-label">Airline name <span class="tip-icon" data-tip="Used in your formal complaint letter.">?</span></div>
+        <input type="text" id="airline" placeholder="e.g., Delta, United, American Airlines" list="dl-airline" oninput="autoSuggestEmail('airline','flight')">
+        <div class="error-msg">Please enter the airline name.</div>
+      </div>
+      <div class="field-inline">
+        <div class="field-group">
+          <div class="field-label">Flight number <span class="optional">optional</span></div>
+          <input type="text" id="flightNum" placeholder="e.g., DL 401">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Flight date</div>
+          <input type="date" id="flightDate">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">What happened?</div>
+        <select id="flightType">
+          <option value="">Select…</option>
+          <option value="delayed">Flight delayed (3+ hours)</option>
+          <option value="cancelled">Flight cancelled</option>
+          <option value="significant-change">Significant schedule change</option>
+          <option value="denied-boarding">Denied boarding (oversold)</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Did you accept a voucher or rebooking? <span class="optional">optional</span></div>
+        <select id="flightVoucher">
+          <option value="no">No — I want a cash refund</option>
+          <option value="voucher">I accepted a voucher but prefer cash</option>
+          <option value="rebooked">I was rebooked but want compensation</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Ticket price paid <span class="optional">optional</span></div>
+        <input type="number" id="flightPrice" placeholder="0.00">
+      </div>
+      <div class="alert alert-info">⚖️ <strong>Know your rights:</strong> US DOT mandates full cash refunds for cancellations/significant changes. EU 261/2004 covers EU routes.</div>
+    </div>
+
+    <!-- SUBSCRIPTION -->
+    <div id="fields-subscription" class="issue-fields" style="display:none">
+      <div class="field-group" id="fg-subName">
+        <div class="field-label">Company / service name</div>
+        <input type="text" id="subName" placeholder="e.g., Netflix, Adobe, Gym membership" list="dl-sub" oninput="autoSuggestEmail('subName','subscription')">
+        <div class="error-msg">Please enter the service name.</div>
+      </div>
+      <div class="field-inline">
+        <div class="field-group">
+          <div class="field-label">Charge amount ($)</div>
+          <input type="number" id="subAmount" placeholder="0.00">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Date of charge</div>
+          <input type="date" id="subDate">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">What's the issue?</div>
+        <select id="subIssue">
+          <option value="charged-after-cancel">Charged after I cancelled</option>
+          <option value="free-trial">Free trial auto-renewed without clear notice</option>
+          <option value="cant-cancel">Can't find how to cancel / cancellation blocked</option>
+          <option value="no-notice">Price increase without notice</option>
+          <option value="never-used">Never used the service</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Have you contacted the company? <span class="optional">optional</span></div>
+        <select id="subContacted">
+          <option value="no">No, this is my first contact</option>
+          <option value="yes-refused">Yes, but they refused</option>
+          <option value="yes-ignored">Yes, they ignored me</option>
+        </select>
+      </div>
+      <div class="alert alert-info">🔒 <strong>FTC tip:</strong> The FTC "Click-to-Cancel" rule requires cancellation to be as easy as sign-up.</div>
+    </div>
+
+    <!-- SHOPPING -->
+    <div id="fields-shopping" class="issue-fields" style="display:none">
+      <div class="field-group" id="fg-shopName">
+        <div class="field-label">Retailer / seller name</div>
+        <input type="text" id="shopName" placeholder="e.g., Amazon, Etsy seller, eBay" list="dl-shop" oninput="autoSuggestEmail('shopName','shopping')">
+        <div class="error-msg">Please enter the retailer name.</div>
+      </div>
+      <div class="field-inline">
+        <div class="field-group">
+          <div class="field-label">Order amount ($)</div>
+          <input type="number" id="shopAmount" placeholder="0.00">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Order date</div>
+          <input type="date" id="shopDate">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Order number <span class="optional">optional</span></div>
+        <input type="text" id="shopOrder" placeholder="e.g., #ORD-123456">
+      </div>
+      <div class="field-group">
+        <div class="field-label">What's the problem?</div>
+        <select id="shopIssue">
+          <option value="not-arrived">Item never arrived</option>
+          <option value="wrong-item">Wrong item received</option>
+          <option value="damaged">Item arrived damaged</option>
+          <option value="not-described">Item not as described</option>
+          <option value="late">Extremely late delivery</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RIDESHARE -->
+    <div id="fields-rideshare" class="issue-fields" style="display:none">
+      <div class="field-group" id="fg-rideApp">
+        <div class="field-label">Service / app name</div>
+        <input type="text" id="rideApp" placeholder="e.g., Uber, Lyft, DoorDash" list="dl-ride" oninput="autoSuggestEmail('rideApp','rideshare')">
+        <div class="error-msg">Please enter the service name.</div>
+      </div>
+      <div class="field-inline">
+        <div class="field-group">
+          <div class="field-label">Amount charged ($)</div>
+          <input type="number" id="rideAmount" placeholder="0.00">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Date of incident</div>
+          <input type="date" id="rideDate">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">What's the issue?</div>
+        <select id="rideIssue">
+          <option value="overcharge">Overcharged / unexpected surge</option>
+          <option value="poor-service">Extremely poor service / unsafe driver</option>
+          <option value="not-arrived">Delivery never arrived</option>
+          <option value="wrong-order">Wrong order delivered</option>
+          <option value="cancelled-charged">Cancelled but still charged</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- OTHER -->
+    <div id="fields-other" class="issue-fields" style="display:none">
+      <div class="field-group" id="fg-otherComp">
+        <div class="field-label">Company name</div>
+        <input type="text" id="otherComp" placeholder="e.g., Hotel XYZ, Acme Corp" oninput="autoSuggestEmail('otherComp','other')">
+        <div class="error-msg">Please enter the company name.</div>
+      </div>
+      <div class="field-inline">
+        <div class="field-group">
+          <div class="field-label">Amount ($) <span class="optional">optional</span></div>
+          <input type="number" id="otherAmount" placeholder="0.00">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Date of issue <span class="optional">optional</span></div>
+          <input type="date" id="otherDate">
+        </div>
+      </div>
+    </div>
+
+    <!-- FILE UPLOAD -->
+    <div class="field-group" style="margin-top:8px">
+      <div class="field-label">
+        Attach proof <span class="optional">optional but recommended</span>
+        <span class="tip-icon" data-tip="Files are stored only in your browser for this claim. Nothing is uploaded to any server.">?</span>
+      </div>
+      <div class="upload-zone" id="uploadZone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx" onchange="handleFiles(this.files)">
+        <div class="upload-icon">📎</div>
+        <div class="upload-text"><strong>Tap to upload</strong> or drag &amp; drop<br>Images, PDF, screenshots accepted</div>
+      </div>
+      <div class="files-list" id="filesList"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="step2Btn" onclick="step2Next()">Continue →</button>
+      <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+    </div>
+    <div id="step2Error" class="alert alert-error" style="display:none;margin-top:14px">⚠ Please fill in the required fields above.</div>
+  </div>
+
+  <!-- ====== STEP 3: CONTACT ====== -->
+  <div class="section" id="step3">
+    <div class="section-header" style="margin-top:28px">
+      <h2>One last thing</h2>
+      <p>We'll include your contact info in the template. Nothing is sent to us.</p>
+    </div>
+    <div class="field-group" id="fg-email">
+      <div class="field-label">Email address</div>
+      <input type="email" id="userEmail" placeholder="you@example.com" oninput="validateEmailLive()">
+      <div class="error-msg">Please enter a valid email address.</div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">Phone number <span class="optional">optional</span> <span class="tip-icon" data-tip="Useful for airlines and banks that prefer to call. Never shared.">?</span></div>
+      <input type="tel" id="userPhone" placeholder="+1 (555) 000-0000">
+    </div>
+    <div class="field-group">
+      <div class="field-label">Your name <span class="optional">optional</span></div>
+      <input type="text" id="userName" placeholder="Jane Smith">
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="agreeTerms" onchange="validateStep3Live()">
+      <label for="agreeTerms">I agree to the <a href="#" onclick="openModal('privacyModal');return false">Privacy Policy</a> and <a href="#" onclick="openModal('termsModal');return false">Terms of Use</a>. I understand this is a template tool, not legal advice.</label>
+    </div>
+    <div class="security-note">
+      🔒 Your info stays in this browser only. We never sell or share your data.
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="step3Btn" style="font-size:1rem" onclick="step3Next()">Generate my refund request →</button>
+      <button class="btn btn-ghost" onclick="goStep(2)">← Back</button>
+    </div>
+    <div id="step3Error" class="alert alert-error" style="display:none;margin-top:14px">⚠ Please enter your email and agree to the terms.</div>
+  </div>
+
+  <!-- ====== STEP 4: SUCCESS ====== -->
+  <div class="section" id="step4">
+    <div class="success-header">
+      <div class="success-badge">✓ Claim Created</div>
+      <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;letter-spacing:-0.02em">Your request is ready!</h2>
+      <p style="color:var(--muted);font-size:0.88rem;margin-top:6px">Copy the template below and send it right away.</p>
+      <div class="claim-id" id="claimId">CLAIM #—</div>
+    </div>
+
+    <!-- Tracker -->
+    <div class="tracker-bar">
+      <div class="tracker-step done">✓ Created</div>
+      <div class="tracker-step active">→ Submitted</div>
+      <div class="tracker-step">Awaiting Reply</div>
+      <div class="tracker-step">Resolved</div>
+    </div>
+
+    <!-- Share link -->
+    <div class="share-link-box" id="shareLinkBox" onclick="copyShareLink()">
+      <span class="share-link-text" id="shareLinkText">https://refundrover.app/c/—</span>
+      <span class="share-link-copy">📋 Copy link</span>
+    </div>
+
+    <!-- Template -->
+    <div class="template-box">
+      <div class="template-box-header">
+        <h3>📧 Your Refund Request</h3>
+        <div class="template-copy-row">
+          <button class="btn btn-outline btn-sm" onclick="copyTemplate()">Copy</button>
+          <button class="btn btn-secondary btn-sm" onclick="openMailto()">Send now</button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadPDF()">⬇ PDF</button>
+          <button class="btn btn-secondary btn-sm" id="emailMeBtn" onclick="emailTemplate()">✉️ Email me</button>
+        </div>
+      </div>
+      <div class="template-content" id="templateContent">Loading…</div>
+    </div>
+
+    <!-- PWA install -->
+    <button class="btn btn-outline btn-full pwa-install-btn" id="pwaInstallBtn" onclick="triggerInstall()">
+      📲 Add Refund Rover to Home Screen
+    </button>
+
+    <!-- Next steps -->
+    <div class="next-steps" id="nextSteps"></div>
+
+    <!-- Save / extra actions -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+      <button class="btn btn-secondary btn-sm" onclick="saveClaim()">💾 Save claim</button>
+      <button class="btn btn-ghost btn-sm" onclick="startNewClaim()">+ Add another claim</button>
+    </div>
+
+    <div class="alert alert-info">🛡 <strong>Escalation tip:</strong> No response in 7–10 days? File with CFPB (cfpb.gov), DOT (airconsumer.dot.gov), or FTC (reportfraud.ftc.gov).</div>
+
+    <button class="btn btn-primary btn-full" style="margin-top:20px" onclick="goStep(0)">← Back to home</button>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="privacyModal" onclick="closeModalOutside(event,'privacyModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('privacyModal')">✕</button>
+    <h2>Privacy Policy</h2>
+    <p>Refund Rover is a fully client-side tool. Your documents are processed in your browser and converted to base64 for localStorage only — they are never transmitted to any server.</p>
+    <p>We do not use analytics, advertising trackers, or third-party cookies. All data stays in your browser.</p>
+    <p>Any templates generated are for personal use and do not constitute legal advice.</p>
+    <button class="btn btn-primary btn-sm" onclick="closeModal('privacyModal')" style="margin-top:8px">Got it</button>
+  </div>
+</div>
+<div class="modal-overlay" id="termsModal" onclick="closeModalOutside(event,'termsModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('termsModal')">✕</button>
+    <h2>Terms of Use</h2>
+    <p>Refund Rover provides templates and general consumer guidance only. We are not a law firm. Nothing here constitutes legal advice.</p>
+    <p>Results vary. Always verify the accuracy of generated templates before sending. You may use generated templates freely for personal refund requests.</p>
+    <button class="btn btn-primary btn-sm" onclick="closeModal('termsModal')" style="margin-top:8px">Got it</button>
+  </div>
+</div>
+<div class="modal-overlay" id="aboutModal" onclick="closeModalOutside(event,'aboutModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('aboutModal')">✕</button>
+    <h2>About Refund Rover</h2>
+    <p>Refund Rover levels the playing field between consumers and companies that profit from confusing fee structures and dark patterns.</p>
+    <p>Our templates cite real consumer protection rules: US DOT flight rules, CFPB banking rights, FTC subscription guidelines, and more.</p>
+    <p>Built with ❤ — zero trackers, zero servers, zero cost.</p>
+    <button class="btn btn-primary btn-sm" onclick="closeModal('aboutModal')" style="margin-top:8px">Close</button>
+  </div>
+</div>
+
+<script>
+// =====================================
+// PWA SERVICE WORKER (Blob technique)
+// =====================================
+(function registerSW() {
+  const swCode = `
+    const CACHE = 'refund-rover-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
+      self.skipWaiting();
+    });
+    self.addEventListener('activate', e => { self.clients.claim(); });
+    self.addEventListener('fetch', e => {
+      e.respondWith(
+        caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/')))
+      );
+    });
+  `;
+  if ('serviceWorker' in navigator) {
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(() => {});
+    // Check if already installed (standalone mode)
+    if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+      document.getElementById('pwaBadge').classList.add('visible');
+    }
+  }
+})();
+
+// PWA install prompt
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.classList.add('visible');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwaBadge').classList.add('visible');
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.classList.remove('visible');
+});
+
+function triggerInstall() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  } else {
+    showToast('Use browser menu → "Add to Home Screen"');
+  }
+}
+
+// =====================================
+// EMAILJS SETUP
+// =====================================
+// ←←← REPLACE WITH YOUR FREE EMAILJS PUBLIC KEY from emailjs.com (free tier)
+// Sign up at https://www.emailjs.com → Account → API Keys → Public Key
+const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY_HERE';
+
+// ←←← In your EmailJS dashboard, create a service (Gmail/Outlook/etc)
+// Then create an Email Template called "refund_template" with these variables:
+//   {{to_email}}  — recipient email
+//   {{claim_id}}  — claim reference number
+//   {{subject}}   — email subject line
+//   {{message}}   — full template body
+// Set the "To Email" field in EmailJS template to: {{to_email}}
+const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';   // ←←← Your EmailJS service ID
+const EMAILJS_TEMPLATE_ID = 'refund_template';  // ←←← Your EmailJS template name
+
+try {
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+} catch(e) {}
+
+// =====================================
+// SUPPORT EMAIL MAP
+// =====================================
+const SUPPORT_EMAILS = {
+  // Banks
+  'chase': 'customerservice@chase.com',
+  'bank of america': 'customer.service@bankofamerica.com',
+  'wells fargo': 'onlinesupport@wellsfargo.com',
+  'citibank': 'customerservice@citi.com',
+  'capital one': 'customerservice@capitalone.com',
+  'us bank': 'customerservice@usbank.com',
+  'td bank': 'customer.service@td.com',
+  'pnc bank': 'support@pnc.com',
+  'ally bank': 'support@ally.com',
+  'american express': 'customer.care@americanexpress.com',
+  // Airlines
+  'delta': 'refunds@delta.com',
+  'united airlines': 'customer.care@united.com',
+  'american airlines': 'customer.relations@aa.com',
+  'southwest airlines': 'customer.relations@wnco.com',
+  'jetblue': 'help@jetblue.com',
+  'alaska airlines': 'customer.care@alaskaair.com',
+  'spirit airlines': 'customerrelations@spirit.com',
+  'frontier airlines': 'customerrelations@flyfrontier.com',
+  'air france': 'customer.service@airfrance.fr',
+  'british airways': 'customerrelations@ba.com',
+  // Subscriptions
+  'netflix': 'billing@netflix.com',
+  'adobe': 'billing@adobe.com',
+  'adobe creative cloud': 'billing@adobe.com',
+  'spotify': 'support@spotify.com',
+  'apple one': 'support@apple.com',
+  'amazon prime': 'cs-reply@amazon.com',
+  'hulu': 'support@hulu.com',
+  'disney+': 'support@disneyplus.com',
+  'linkedin premium': 'privacy@linkedin.com',
+  'microsoft 365': 'support@microsoft.com',
+  // Shopping
+  'amazon': 'cs-reply@amazon.com',
+  'ebay': 'askus@ebay.com',
+  'etsy': 'support@etsy.com',
+  'walmart': 'help@walmart.com',
+  'target': 'guest.relations@target.com',
+  'wayfair': 'help@wayfair.com',
+  'chewy': 'cx@chewy.com',
+  'best buy': 'customercare@bestbuy.com',
+  // Rideshare
+  'uber': 'support@uber.com',
+  'lyft': 'support@lyft.com',
+  'doordash': 'support@doordash.com',
+  'instacart': 'support@instacart.com',
+  'grubhub': 'care@grubhub.com',
+  'uber eats': 'support@uber.com',
+};
+
+let suggestedEmail = '';
+
+function autoSuggestEmail(inputId, category) {
+  const val = document.getElementById(inputId).value.toLowerCase().trim();
+  suggestedEmail = SUPPORT_EMAILS[val] || '';
+}
+
+function getRecipientEmail() {
+  return suggestedEmail || '';
+}
+
+// =====================================
+// STATE
+// =====================================
+let state = {
+  issue: null,
+  step: 0,
+  files: [],   // [{name, type, dataUrl}]
+  claimId: null,
+  viewingClaim: null,
+};
+
+// =====================================
+// THEME
+// =====================================
+function toggleTheme() {
+  const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  document.querySelector('.theme-btn').textContent = t === 'dark' ? '☀ Light' : '🌙 Dark';
+  localStorage.setItem('rr-theme', t);
+}
+(function initTheme() {
+  const saved = localStorage.getItem('rr-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.querySelector('.theme-btn').textContent = saved === 'dark' ? '☀ Light' : '🌙 Dark';
+})();
+
+// =====================================
+// NAVIGATION
+// =====================================
+function goStep(n) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  state.step = n;
+  updateProgress(n);
+  if (n === 0) renderClaimsHistory();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startNewClaim() {
+  state.issue = null;
+  state.files = [];
+  state.claimId = null;
+  state.viewingClaim = null;
+  suggestedEmail = '';
+  document.querySelectorAll('.issue-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('otherField').style.display = 'none';
+  goStep(1);
+}
+
+function updateProgress(n) {
+  const wrap = document.getElementById('progressWrap');
+  if (n === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  const pct = [0, 25, 50, 75, 100];
+  document.getElementById('progressFill').style.width = pct[n] + '%';
+  ['pl1','pl2','pl3','pl4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'progress-label';
+    if (i + 1 < n) el.classList.add('done');
+    else if (i + 1 === n) el.classList.add('active');
+  });
+}
+
+// =====================================
+// CLAIM HISTORY DASHBOARD
+// =====================================
+function renderClaimsHistory() {
+  const claims = getSavedClaims();
+  const section = document.getElementById('claimsHistorySection');
+  if (!claims.length) { section.innerHTML = ''; return; }
+
+  const issueLabels = { bank:'Bank fee', flight:'Flight', subscription:'Subscription', shopping:'Shopping', rideshare:'Rideshare', other:'Other' };
+
+  section.innerHTML = `
+    <div class="claims-section">
+      <h2>📂 My Claims</h2>
+      ${claims.map(c => `
+        <div class="claim-history-card">
+          <div class="claim-history-info">
+            <div class="claim-history-id">${c.id}</div>
+            <div class="claim-history-meta">${issueLabels[c.issue] || c.issue} · ${new Date(c.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+          </div>
+          <div class="claim-history-status">${c.status}</div>
+          <div class="claim-history-actions">
+            <button class="btn btn-outline btn-sm" onclick="viewClaim('${c.id}')">View</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteClaim('${c.id}')">✕</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function getSavedClaims() {
+  try { return JSON.parse(localStorage.getItem('rr-claims') || '[]'); } catch { return []; }
+}
+
+function deleteClaim(id) {
+  let claims = getSavedClaims().filter(c => c.id !== id);
+  localStorage.setItem('rr-claims', JSON.stringify(claims));
+  try { localStorage.removeItem('rr-claim-' + id); } catch(e) {}
+  renderClaimsHistory();
+}
+
+function viewClaim(id) {
+  const claims = getSavedClaims();
+  const claim = claims.find(c => c.id === id);
+  if (!claim) return;
+
+  // Restore state from saved data
+  const saved = JSON.parse(localStorage.getItem('rr-claim-' + id) || '{}');
+  state.issue = claim.issue;
+  state.claimId = id;
+  state.viewingClaim = id;
+  state.files = saved.files || [];
+
+  // Generate template from saved field snapshot
+  if (saved.fields) {
+    Object.entries(saved.fields).forEach(([k, val]) => {
+      const el = document.getElementById(k);
+      if (el) el.value = val;
+    });
+  }
+
+  const template = saved.template || buildTemplate();
+  document.getElementById('claimId').textContent = 'CLAIM #' + id;
+  document.getElementById('templateContent').textContent = template;
+  document.getElementById('nextSteps').innerHTML = buildNextSteps();
+  document.getElementById('shareLinkText').textContent = `https://refundrover.app/c/${id}`;
+  renderFiles();
+  goStep(4);
+}
+
+// =====================================
+// STEP 1
+// =====================================
+function selectIssue(type, el) {
+  document.querySelectorAll('.issue-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.issue = type;
+  document.getElementById('otherField').style.display = type === 'other' ? 'block' : 'none';
+  document.getElementById('step1Error').style.display = 'none';
+}
+
+function step1Next() {
+  if (!state.issue) {
+    document.getElementById('step1Error').style.display = 'flex';
+    return;
+  }
+  document.querySelectorAll('.issue-fields').forEach(f => f.style.display = 'none');
+  document.getElementById('fields-' + state.issue).style.display = 'block';
+  // Reset errors on step 2
+  document.getElementById('step2Error').style.display = 'none';
+  goStep(2);
+}
+
+// =====================================
+// STEP 2 VALIDATION
+// =====================================
+function validateStep2() {
+  const validators = {
+    bank: () => requireField('bankName', 'fg-bankName'),
+    flight: () => requireField('airline', 'fg-airline'),
+    subscription: () => requireField('subName', 'fg-subName'),
+    shopping: () => requireField('shopName', 'fg-shopName'),
+    rideshare: () => requireField('rideApp', 'fg-rideApp'),
+    other: () => requireField('otherComp', 'fg-otherComp'),
+  };
+  const v = validators[state.issue];
+  return v ? v() : true;
+}
+
+function requireField(inputId, groupId) {
+  const el = document.getElementById(inputId);
+  const grp = document.getElementById(groupId);
+  if (!el || !el.value.trim()) {
+    if (grp) grp.classList.add('has-error');
+    return false;
+  }
+  if (grp) grp.classList.remove('has-error');
+  return true;
+}
+
+function step2Next() {
+  const err = document.getElementById('step2Error');
+  if (!validateStep2()) {
+    err.style.display = 'flex';
+    return;
+  }
+  err.style.display = 'none';
+  goStep(3);
+}
+
+// =====================================
+// STEP 3 VALIDATION
+// =====================================
+function validateEmailLive() {
+  const email = document.getElementById('userEmail').value.trim();
+  const grp = document.getElementById('fg-email');
+  const valid = /^[^@]+@[^@]+\.[^@]+$/.test(email);
+  grp.classList.toggle('has-error', email.length > 0 && !valid);
+}
+
+function validateStep3() {
+  const email = document.getElementById('userEmail').value.trim();
+  const agreed = document.getElementById('agreeTerms').checked;
+  const emailValid = /^[^@]+@[^@]+\.[^@]+$/.test(email);
+  const grp = document.getElementById('fg-email');
+  if (!emailValid) grp.classList.add('has-error'); else grp.classList.remove('has-error');
+  return emailValid && agreed;
+}
+
+function validateStep3Live() { /* triggered on checkbox change, just re-validate silently */ }
+
+function step3Next() {
+  const err = document.getElementById('step3Error');
+  if (!validateStep3()) {
+    err.style.display = 'flex';
+    return;
+  }
+  err.style.display = 'none';
+  generateClaim();
+  goStep(4);
+}
+
+// =====================================
+// FILE UPLOAD (base64 persistence)
+// =====================================
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    if (state.files.find(x => x.name === file.name)) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      state.files.push({ name: file.name, type: file.type, dataUrl: e.target.result });
+      renderFiles();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderFiles() {
+  const list = document.getElementById('filesList');
+  if (!list) return;
+  list.innerHTML = state.files.map((f, i) => {
+    const isImage = f.type && f.type.startsWith('image/');
+    const preview = isImage
+      ? `<img class="file-thumb" src="${f.dataUrl}" alt="${f.name}">`
+      : `<div class="file-thumb-placeholder">📄</div>`;
+    return `<div class="file-item">${preview}<span class="file-item-name">${f.name}</span><button class="file-remove" onclick="removeFile(${i})">✕</button></div>`;
+  }).join('');
+}
+
+function removeFile(i) { state.files.splice(i, 1); renderFiles(); }
+function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag-over'); }
+function handleDragLeave() { document.getElementById('uploadZone').classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+}
+
+// =====================================
+// CLAIM GENERATION
+// =====================================
+function generateClaim() {
+  const id = state.claimId || ('REF' + Math.floor(100000 + Math.random() * 900000));
+  state.claimId = id;
+  document.getElementById('claimId').textContent = 'CLAIM #' + id;
+  document.getElementById('shareLinkText').textContent = `https://refundrover.app/c/${id}`;
+
+  const template = buildTemplate();
+  document.getElementById('templateContent').textContent = template;
+  document.getElementById('nextSteps').innerHTML = buildNextSteps();
+
+  // Collect field snapshot for persistence
+  const fieldIds = ['bankName','feeType','feeDate','feeAmount','feeWaivedBefore',
+    'airline','flightNum','flightDate','flightType','flightVoucher','flightPrice',
+    'subName','subAmount','subDate','subIssue','subContacted',
+    'shopName','shopAmount','shopDate','shopOrder','shopIssue',
+    'rideApp','rideAmount','rideDate','rideIssue',
+    'otherComp','otherAmount','otherDate','otherDesc',
+    'userEmail','userPhone','userName'];
+  const fields = {};
+  fieldIds.forEach(fid => {
+    const el = document.getElementById(fid);
+    if (el) fields[fid] = el.value;
+  });
+
+  // Save full claim data
+  const claimData = { template, fields, files: state.files.map(f => ({ name: f.name, type: f.type, dataUrl: f.dataUrl })) };
+  try { localStorage.setItem('rr-claim-' + id, JSON.stringify(claimData)); } catch(e) {}
+
+  // Update claims index
+  const claims = getSavedClaims().filter(c => c.id !== id);
+  claims.unshift({ id, issue: state.issue, date: new Date().toISOString(), status: 'Submitted' });
+  try { localStorage.setItem('rr-claims', JSON.stringify(claims)); } catch(e) {}
+}
+
+// =====================================
+// VALUE HELPER
+// =====================================
+function v(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+// =====================================
+// TEMPLATE BUILDER
+// =====================================
+function buildTemplate() {
+  const name = v('userName') || 'Account Holder';
+  const email = v('userEmail');
+  const phone = v('userPhone') ? `\nPhone: ${v('userPhone')}` : '';
+  const date = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  const t = state.issue;
+  const fileNote = state.files.length ? `\n\nAttached files: ${state.files.map(f=>f.name).join(', ')}` : '';
+
+  if (t === 'bank') {
+    const bank = v('bankName') || 'your bank';
+    const feeType = v('feeType') || 'bank fee';
+    const feeDate = v('feeDate') ? new Date(v('feeDate')+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'recently';
+    const amount = v('feeAmount') ? '$'+v('feeAmount') : 'the fee';
+    return `Subject: Request to Waive ${feeType} — Account Holder: ${name}\n\n${date}\n\nDear ${bank} Customer Service,\n\nI am writing to respectfully request a waiver of a ${feeType} of ${amount} charged to my account on or around ${feeDate}.\n\nI have been a loyal ${bank} customer and value our banking relationship. I believe this charge was either applied in error or is an isolated incident that does not reflect my typical account activity.\n\nI kindly ask that you review my account history and waive this fee as a one-time courtesy. I understand fees are part of the terms, and I commit to managing my account more closely going forward.\n\nMany banks routinely waive fees for customers who ask politely — I am hopeful you will extend the same courtesy here.\n\nPlease confirm the waiver by email or by updating my account. If you need any additional information, please contact me at ${email}.\n\nThank you sincerely for your time and understanding.\n\nRespectfully,\n${name}\nEmail: ${email}${phone}${fileNote}`;
+  }
+  if (t === 'flight') {
+    const airline = v('airline') || 'the airline';
+    const flightNum = v('flightNum') ? `(Flight ${v('flightNum')}) ` : '';
+    const flightDate = v('flightDate') ? new Date(v('flightDate')+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'recently';
+    const flightTypeMap = { delayed:'significantly delayed', cancelled:'cancelled', 'significant-change':'subject to a significant schedule change', 'denied-boarding':'overbooked and I was denied boarding' };
+    const issueDesc = flightTypeMap[v('flightType')] || 'disrupted';
+    const ticketNote = v('flightPrice') ? `I paid $${v('flightPrice')} for this ticket. ` : '';
+    return `Subject: Request for Refund / Compensation — Flight ${flightNum}on ${flightDate}\n\n${date}\n\nDear ${airline} Customer Relations,\n\nI am writing to formally request a full cash refund and applicable compensation for my flight ${flightNum}on ${flightDate}, which was ${issueDesc}. ${ticketNote}\n\nUnder the U.S. Department of Transportation (DOT) regulations, passengers are entitled to:\n• A full cash refund when a flight is cancelled or significantly changed and the passenger does not accept rebooking\n• Compensation for qualified delays on certain route types\n\nUnder European Regulation EC 261/2004 (if applicable), compensation of €250–€600 may apply for delays over 3 hours or cancellations with less than 14 days' notice.\n\nI have not accepted any travel vouchers in lieu of a cash refund, and I formally request that my ticket cost be refunded to my original payment method within 7 business days, as required by DOT rules.\n\nPlease confirm receipt of this request and provide a timeline for resolution.\n\nSincerely,\n${name}\nEmail: ${email}${phone}${fileNote}`;
+  }
+  if (t === 'subscription') {
+    const service = v('subName') || 'the service';
+    const amount = v('subAmount') ? '$'+v('subAmount') : 'the charge';
+    const chargeDate = v('subDate') ? new Date(v('subDate')+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'recently';
+    const issueMap = { 'charged-after-cancel':'I had previously cancelled my subscription and should not have been charged', 'free-trial':'my free trial was auto-renewed without sufficient prior notice', 'cant-cancel':'I have been unable to locate a straightforward cancellation option as required by law', 'no-notice':'my subscription price was increased without adequate advance notice', 'never-used':'I have not used the service and was unaware of the ongoing charge' };
+    const issueText = issueMap[v('subIssue')] || 'I dispute this charge';
+    return `Subject: Refund Request — Unauthorized / Disputed Subscription Charge\n\n${date}\n\nDear ${service} Billing / Support Team,\n\nI am writing to request an immediate refund of ${amount} charged to my account on ${chargeDate}.\n\nThe reason for my request: ${issueText}.\n\nUnder the FTC's regulations regarding negative option marketing and its recently enacted "Click-to-Cancel" rule, companies are required to:\n1. Clearly disclose all subscription terms before enrollment\n2. Obtain express informed consent before charging\n3. Provide a simple, immediately effective cancellation mechanism\n\nI believe my situation may not meet one or more of these requirements, and I am therefore entitled to a refund.\n\nI request that you:\n1. Refund ${amount} to my original payment method within 5–7 business days\n2. Confirm cancellation of any ongoing subscription immediately\n3. Provide written confirmation of both actions to ${email}\n\nIf I do not receive a satisfactory response within 7 days, I will escalate this dispute to my credit card issuer (chargeback), the FTC at reportfraud.ftc.gov, and my state Attorney General's consumer protection office.\n\nI hope we can resolve this quickly and amicably.\n\nRegards,\n${name}\nEmail: ${email}${phone}${fileNote}`;
+  }
+  if (t === 'shopping') {
+    const retailer = v('shopName') || 'the seller';
+    const amount = v('shopAmount') ? '$'+v('shopAmount') : 'the purchase amount';
+    const orderNum = v('shopOrder') ? ` (Order ${v('shopOrder')})` : '';
+    const orderDate = v('shopDate') ? new Date(v('shopDate')+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'recently';
+    const issueMap = { 'not-arrived':'never arrived', 'wrong-item':'was not the item I ordered', 'damaged':'arrived in damaged condition', 'not-described':'did not match the product description', 'late':'arrived significantly later than the stated delivery window' };
+    const issue = issueMap[v('shopIssue')] || 'has not been received as described';
+    return `Subject: Refund Request — Order${orderNum} Placed ${orderDate}\n\n${date}\n\nDear ${retailer} Customer Support,\n\nI am writing regarding my order${orderNum} placed on ${orderDate} for ${amount}. Unfortunately, my item ${issue}.\n\nUnder the FTC's Mail, Internet, or Telephone Order Merchandise Rule, merchants must ship orders within the stated time frame (or 30 days if no timeframe is stated). If unable to do so, customers are entitled to a full refund.\n\nI am requesting a full refund of ${amount} to my original payment method. I am happy to return the item if a prepaid return label is provided.\n\nPlease respond with a resolution within 5 business days. If I do not receive a satisfactory response, I will initiate a chargeback with my card issuer and file a complaint with the FTC and the BBB.\n\nThank you,\n${name}\nEmail: ${email}${phone}${fileNote}`;
+  }
+  if (t === 'rideshare') {
+    const service = v('rideApp') || 'the service';
+    const amount = v('rideAmount') ? '$'+v('rideAmount') : 'the charge';
+    const rideDate = v('rideDate') ? new Date(v('rideDate')+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'recently';
+    const issueMap = { overcharge:'I was charged more than the quoted fare without prior notice', 'poor-service':'I experienced unacceptable service quality', 'not-arrived':'my delivery never arrived', 'wrong-order':'I received the wrong order', 'cancelled-charged':'I was charged despite cancelling within the free cancellation window' };
+    const issue = issueMap[v('rideIssue')] || 'I dispute this charge';
+    return `Subject: Refund Request — ${service} Charge on ${rideDate}\n\n${date}\n\nDear ${service} Support Team,\n\nI am writing to formally dispute a charge of ${amount} on ${rideDate}. The issue: ${issue}.\n\nI expect services to be provided as quoted and described. This charge does not reflect the service I agreed to or received.\n\nI request that you:\n1. Refund ${amount} to my account immediately\n2. Provide an explanation for the discrepancy\n3. Confirm resolution to ${email}\n\nPlease respond within 5 business days. If unresolved, I will file a dispute with my card issuer and report this issue to the Better Business Bureau and relevant consumer protection agencies.\n\nThank you,\n${name}\nEmail: ${email}${phone}${fileNote}`;
+  }
+  // Other
+  const comp = v('otherComp') || 'the company';
+  const amount = v('otherAmount') ? '$'+v('otherAmount') : 'the amount in question';
+  const desc = document.getElementById('otherDesc') ? document.getElementById('otherDesc').value.trim() : '';
+  return `Subject: Formal Refund / Compensation Request\n\n${date}\n\nDear ${comp} Customer Service,\n\nI am writing to formally request a refund or compensation regarding a recent issue with your company.\n\n${desc ? 'Description of issue:\n'+desc+'\n\n' : ''}I am requesting a refund of ${amount}.\n\nAs a consumer, I have rights under applicable state and federal consumer protection laws. I am asking for a prompt and fair resolution.\n\nPlease respond to this request within 7 business days. If I do not receive a satisfactory response, I will escalate to the relevant consumer protection agency.\n\nThank you for your attention.\n\nRegards,\n${v('userName') || 'Account Holder'}\nEmail: ${v('userEmail')}${phone}${fileNote}`;
+}
+
+function buildNextSteps() {
+  const steps = {
+    bank: [
+      { title: 'Call your bank directly', text: 'Calling is often faster than email. Ask for a retention specialist if the first rep refuses.' },
+      { title: 'Follow up in 3–5 days', text: 'If no response, follow up on the same email thread or call again.' },
+      { title: 'Escalate to the CFPB', text: 'File a complaint at cfpb.gov. Banks typically respond quickly to CFPB complaints.' },
+    ],
+    flight: [
+      { title: 'Email or submit via airline portal', text: 'Use the refund/customer relations page — DOT compliance emails often work faster.' },
+      { title: 'Follow up in 7 days', text: 'DOT requires airlines to respond within 30 days. Follow up at 7 days if no reply.' },
+      { title: 'File a DOT complaint', text: 'Go to airconsumer.dot.gov to file a formal complaint. Airlines take these very seriously.' },
+    ],
+    subscription: [
+      { title: 'Send the email immediately', text: 'CC yourself. Note the timestamp as evidence.' },
+      { title: 'Initiate a chargeback if refused', text: 'Contact your card issuer within 60–120 days. State it is an unauthorized recurring charge.' },
+      { title: 'Report to the FTC', text: 'File at reportfraud.ftc.gov. The FTC\'s "Click-to-Cancel" rule is actively enforced.' },
+    ],
+    shopping: [
+      { title: 'Send to the seller / support team', text: 'Include your order number and any photos of the issue.' },
+      { title: 'Open a marketplace dispute', text: 'Amazon, eBay, Etsy all have buyer protection programs. Open a claim through the platform too.' },
+      { title: 'Chargeback if no response', text: 'Contact your card issuer after 7–10 days. Keep all correspondence.' },
+    ],
+    rideshare: [
+      { title: 'Submit through the in-app help', text: 'Uber and Lyft have in-app refund flows. Start there + send the email.' },
+      { title: 'Follow up in 48 hours', text: 'Rideshare apps typically resolve disputes faster than other businesses.' },
+      { title: 'Chargeback if declined', text: 'Most card issuers side with consumers on disputed rideshare charges with documentation.' },
+    ],
+    other: [
+      { title: 'Send the email and note the date', text: 'Keep a record of all communications including the claim reference number.' },
+      { title: 'Follow up in 7 days', text: 'A polite follow-up significantly increases response rates.' },
+      { title: 'Escalate if needed', text: 'State Attorney General offices and the BBB can apply pressure on unresponsive companies.' },
+    ],
+  };
+  const list = steps[state.issue] || steps.other;
+  return `<h3>📋 What to do next</h3>` + list.map((s,i) =>
+    `<div class="step-item"><div class="step-num">${i+1}</div><div class="step-text"><strong>${s.title}</strong>${s.text}</div></div>`
+  ).join('');
+}
+
+// =====================================
+// COPY / MAILTO / SAVE
+// =====================================
+function copyTemplate() {
+  const text = document.getElementById('templateContent').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('✓ Copied to clipboard!'));
+}
+
+function openMailto() {
+  const text = document.getElementById('templateContent').textContent;
+  const lines = text.split('\n');
+  const subjectLine = lines[0].replace('Subject: ', '').trim();
+  const body = lines.slice(2).join('\n');
+  const recipient = getRecipientEmail();
+  window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(body)}`;
+}
+
+function copyShareLink() {
+  const link = document.getElementById('shareLinkText').textContent;
+  navigator.clipboard.writeText(link).then(() => showToast('✓ Share link copied!'));
+}
+
+function saveClaim() {
+  showToast('✓ Claim saved to your browser!');
+}
+
+// =====================================
+// PDF DOWNLOAD
+// =====================================
+function downloadPDF() {
+  if (typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+    showToast('PDF library loading, try again in a moment.', true);
+    return;
+  }
+  try {
+    const { jsPDF } = window.jspdf || window;
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    const margin = 60;
+    const pageW = doc.internal.pageSize.getWidth();
+    const maxW = pageW - margin * 2;
+    let y = margin;
+
+    // Header
+    doc.setFillColor(10, 14, 26);
+    doc.rect(0, 0, pageW, 80, 'F');
+    doc.setTextColor(0, 212, 180);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.text('Refund Rover', margin, 50);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.text('refundrover.app', pageW - margin, 50, { align: 'right' });
+
+    y = 110;
+    doc.setTextColor(40, 40, 40);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('Claim Reference: ' + (state.claimId || '—'), margin, y);
+    y += 16;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Generated: ' + new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }), margin, y);
+    y += 24;
+
+    // Divider
+    doc.setDrawColor(0, 212, 180);
+    doc.setLineWidth(1);
+    doc.line(margin, y, pageW - margin, y);
+    y += 20;
+
+    // Template content
+    doc.setTextColor(20, 20, 20);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    const templateText = document.getElementById('templateContent').textContent;
+    const lines = doc.splitTextToSize(templateText, maxW);
+    lines.forEach(line => {
+      if (y > doc.internal.pageSize.getHeight() - 60) {
+        doc.addPage();
+        y = margin;
+      }
+      doc.text(line, margin, y);
+      y += 14;
+    });
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Generated by Refund Rover · Not legal advice · refundrover.app', margin, doc.internal.pageSize.getHeight() - 20);
+      doc.text(`Page ${i} of ${pageCount}`, pageW - margin, doc.internal.pageSize.getHeight() - 20, { align: 'right' });
+    }
+
+    doc.save(`RefundRover-${state.claimId || 'claim'}.pdf`);
+    showToast('✓ PDF downloaded!');
+  } catch(e) {
+    showToast('PDF error: ' + e.message, true);
+  }
+}
+
+// =====================================
+// EMAIL TO SELF (EmailJS)
+// =====================================
+async function emailTemplate() {
+  const userEmail = v('userEmail');
+  if (!userEmail) { showToast('Enter your email in Step 3 first.', true); return; }
+
+  const btn = document.getElementById('emailMeBtn');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span> Sending…';
+  btn.disabled = true;
+
+  const templateText = document.getElementById('templateContent').textContent;
+  const lines = templateText.split('\n');
+  const subject = lines[0].replace('Subject: ', '').trim();
+
+  try {
+    // ←←← Make sure EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID are set above
+    // ←←← In your EmailJS template, map: to_email, claim_id, subject, message
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: userEmail,
+      claim_id: state.claimId || '—',
+      subject: subject,
+      message: templateText,
+    });
+    showToast('✓ Email sent to ' + userEmail + '!');
+  } catch(err) {
+    // Friendly fallback if EmailJS not configured
+    showToast('EmailJS not configured — use Copy or Send Now instead.', true);
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+  }
+}
+
+// =====================================
+// TOAST
+// =====================================
+function showToast(msg, isError = false) {
+  const t = document.createElement('div');
+  t.className = 'copied-toast' + (isError ? ' error-toast' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// =====================================
+// MODALS
+// =====================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e, id) { if (e.target.id === id) closeModal(id); }
+
+// =====================================
+// FAQ
+// =====================================
+function toggleFaq(btn) { btn.parentElement.classList.toggle('open'); }
+
+// =====================================
+// INIT
+// =====================================
+(function init() {
+  renderClaimsHistory();
+  // Set today as default for date fields
+  const today = new Date().toISOString().split('T')[0];
+  ['feeDate','flightDate','subDate','shopDate','rideDate','otherDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = today;
+  });
+})();
+</script>
+</body>
+</html>
